@@ -38,9 +38,9 @@ public class OpenApiSchemaConfig {
     }
 
     private void configureUserRegistrationResponse(Schema schema) {
-        schema.setDescription("User registration response with JWT token");
+        schema.setDescription("User registration response with JWT bearer");
         Map<String, Schema> props = schema.getProperties();
 
-        props.get("token").description("JWT authentication token").example("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...");
+        props.get("bearer").description("JWT authentication bearer").example("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...");
     }
 }

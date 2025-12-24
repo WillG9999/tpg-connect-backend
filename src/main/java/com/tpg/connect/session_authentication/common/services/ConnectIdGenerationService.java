@@ -4,16 +4,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Snowflake-style ID generator.
- * Generates unique, time-sortable IDs without database calls.
- *
- * ID structure (64 bits):
- * - 41 bits: timestamp (milliseconds since custom epoch)
- * - 10 bits: node/instance ID (for distributed systems)
- * - 12 bits: sequence number (4096 IDs per millisecond per node)
- */
-
 @Service
 public class ConnectIdGenerationService {
 
@@ -33,7 +23,7 @@ public class ConnectIdGenerationService {
     private volatile long lastTimestamp = -1L;
 
     public ConnectIdGenerationService() {
-        this.nodeId = 1L; //todo: this needs to be throught through if we have different instances, need a node id assignment
+        this.nodeId = 1L; //todo: this needs to be throught through if we have different instances, need a node id assignment, can be done from insatnce and inject
     }
 
     public ConnectIdGenerationService(long nodeId) {
@@ -43,8 +33,8 @@ public class ConnectIdGenerationService {
     }
 
     public synchronized long generateConnectId() {
-        long currentTimestamp = currentTimestamp();
 
+        long currentTimestamp = currentTimestamp();
         if (currentTimestamp <= lastTimestamp) {
             long seq = sequence.incrementAndGet() & MAX_SEQUENCE;
             if (seq == 0)
@@ -53,10 +43,9 @@ public class ConnectIdGenerationService {
             lastTimestamp = currentTimestamp;
             sequence.set(0);
         }
-
         return ((lastTimestamp - CUSTOM_EPOCH) << TIMESTAMP_SHIFT)
                 | (nodeId << NODE_ID_SHIFT)
-                | sequence.get();
+            | sequence.get();
     }
 
     private long currentTimestamp() {

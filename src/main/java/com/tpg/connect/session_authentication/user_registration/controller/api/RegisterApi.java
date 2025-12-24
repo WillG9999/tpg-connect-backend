@@ -5,19 +5,20 @@ import com.tpg.connect.session_authentication.user_registration.model.response.U
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 public interface RegisterApi {
 
     @Operation(
             summary = "Register a new user",
-            description = "Creates a new user account and returns a JWT token",
+            description = "Creates a new user account and returns a JWT bearer token",
             tags = {"Authentication"}
     )
     @ApiResponses(value = {
@@ -33,11 +34,11 @@ public interface RegisterApi {
 
     @PostMapping("/v1/auth/register")
     ResponseEntity<UserRegistrationResponse> registerUser(
-            @RequestBody(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "User registration details",
                     required = true,
                     content = @Content(schema = @Schema(implementation = UserRegistrationRequest.class))
             )
-            UserRegistrationRequest request
+            @Valid @RequestBody UserRegistrationRequest request
     );
 }

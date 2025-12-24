@@ -29,7 +29,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<cucumber.version>7.31.0</cucumber.version>
-		<opentelemetry-agent.version>2.11.0</opentelemetry-agent.version>
+		<opentelemetry-agent.version>2.12.0</opentelemetry-agent.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -62,6 +62,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
 		<dependency>
@@ -160,6 +164,32 @@
 			<groupId>com.google.firebase</groupId>
 			<artifactId>firebase-admin</artifactId>
 			<version>9.4.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.grpc</groupId>
+					<artifactId>grpc-opentelemetry</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.opentelemetry</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.opentelemetry.instrumentation</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.opentelemetry.contrib</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.opentelemetry.semconv</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.cloud.opentelemetry</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
@@ -187,10 +217,7 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
-					<jvmArguments>-Xshare:off -XX:+EnableDynamicAgentLoading --add-opens java.base/sun.misc=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</jvmArguments>
-					<agents>
-						<agent>${project.build.directory}/agents/opentelemetry-javaagent.jar</agent>
-					</agents>
+					<jvmArguments>-Xshare:off -XX:+EnableDynamicAgentLoading --add-opens java.base/sun.misc=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED -javaagent:${project.build.directory}/agents/opentelemetry-javaagent.jar</jvmArguments>
 					<systemPropertyVariables>
 						<otel.service.name>${project.artifactId}</otel.service.name>
 						<otel.traces.exporter>zipkin</otel.traces.exporter>
@@ -199,6 +226,7 @@
 						<otel.logs.exporter>none</otel.logs.exporter>
 						<otel.traces.sampler>always_on</otel.traces.sampler>
 						<otel.propagators>tracecontext,baggage,b3</otel.propagators>
+						<otel.instrumentation.grpc.enabled>false</otel.instrumentation.grpc.enabled>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
@@ -215,6 +243,9 @@
 					<systemPropertyVariables>
 						<spring.profiles.active>test</spring.profiles.active>
 					</systemPropertyVariables>
+					<environmentVariables>
+						<FIRESTORE_EMULATOR_HOST>127.0.0.1:8080</FIRESTORE_EMULATOR_HOST>
+					</environmentVariables>
 				</configuration>
 			</plugin>
 			<plugin>

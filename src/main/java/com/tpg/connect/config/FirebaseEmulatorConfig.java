@@ -23,6 +23,9 @@ public class FirebaseEmulatorConfig {
     @Value("${firebase.emulator.firestore.port}")
     private String firestorePort;
 
+    @Value("${firebase.project.id}")
+    private String projectId;
+
     @EventListener(ApplicationStartedEvent.class)
     public void startFirebaseEmulator() {
 
@@ -32,7 +35,7 @@ public class FirebaseEmulatorConfig {
 
         try {
             log.info("Starting Firebase Firestore emulator...");
-            ProcessBuilder processBuilder = new ProcessBuilder("firebase", "emulators:start", "--only", "firestore");
+            ProcessBuilder processBuilder = new ProcessBuilder("firebase", "emulators:start", "--only", "firestore", "--project", projectId);
             processBuilder.inheritIO();
 
             emulatorProcess = processBuilder.start();
