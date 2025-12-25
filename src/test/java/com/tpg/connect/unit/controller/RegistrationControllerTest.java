@@ -1,9 +1,9 @@
 package com.tpg.connect.unit.controller;
 
-import com.tpg.connect.session_authentication.user_registration.controller.RegistrationController;
-import com.tpg.connect.session_authentication.user_registration.model.request.UserRegistrationRequest;
-import com.tpg.connect.session_authentication.user_registration.model.response.UserRegistrationResponse;
-import com.tpg.connect.session_authentication.user_registration.service.RegisterUserService;
+import com.tpg.connect.user_registration.controller.RegistrationController;
+import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
+import com.tpg.connect.user_registration.model.entity.response.UserRegistrationResponse;
+import com.tpg.connect.user_registration.service.RegisterUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

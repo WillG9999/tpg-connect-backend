@@ -1,6 +1,6 @@
 package com.tpg.connect.unit.service;
 
-import com.tpg.connect.session_authentication.common.services.ConnectIdGenerationService;
+import com.tpg.connect.user_registration.components.ConnectIdGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -12,7 +12,7 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void defaultConstructor_setsNodeIdToOne() {
-        ConnectIdGenerationService underTest = new ConnectIdGenerationService();
+        ConnectIdGenerator underTest = new ConnectIdGenerator();
 
         long id = underTest.generateConnectId();
 
@@ -22,16 +22,16 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void constructor_acceptsValidNodeId() {
-        assertDoesNotThrow(() -> new ConnectIdGenerationService(0));
-        assertDoesNotThrow(() -> new ConnectIdGenerationService(512));
-        assertDoesNotThrow(() -> new ConnectIdGenerationService(1023));
+        assertDoesNotThrow(() -> new ConnectIdGenerator(0));
+        assertDoesNotThrow(() -> new ConnectIdGenerator(512));
+        assertDoesNotThrow(() -> new ConnectIdGenerator(1023));
     }
 
     @Test
     void constructor_throwsExceptionForNegativeNodeId() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> new ConnectIdGenerationService(-1)
+                () -> new ConnectIdGenerator(-1)
         );
 
         assertTrue(exception.getMessage().contains("Node ID must be between 0 and"));
@@ -41,7 +41,7 @@ class ConnectIdGenerationServiceTest {
     void constructor_throwsExceptionForNodeIdExceedingMax() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> new ConnectIdGenerationService(1024)
+                () -> new ConnectIdGenerator(1024)
         );
 
         assertTrue(exception.getMessage().contains("Node ID must be between 0 and"));
@@ -49,7 +49,7 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void generateConnectId_returnsPositiveValue() {
-        ConnectIdGenerationService underTest = new ConnectIdGenerationService();
+        ConnectIdGenerator underTest = new ConnectIdGenerator();
 
         long id = underTest.generateConnectId();
 
@@ -58,7 +58,7 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void generateConnectId_returnsUniqueIds() {
-        ConnectIdGenerationService underTest = new ConnectIdGenerationService();
+        ConnectIdGenerator underTest = new ConnectIdGenerator();
         Set<Long> ids = new HashSet<>();
 
         for (int i = 0; i < 10000; i++) {
@@ -70,7 +70,7 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void generateConnectId_returnsIncreasingIds() {
-        ConnectIdGenerationService underTest = new ConnectIdGenerationService();
+        ConnectIdGenerator underTest = new ConnectIdGenerator();
 
         long id1 = underTest.generateConnectId();
         long id2 = underTest.generateConnectId();
@@ -82,8 +82,8 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void generateConnectId_differentNodesProduceDifferentIds() {
-        ConnectIdGenerationService service1 = new ConnectIdGenerationService(1);
-        ConnectIdGenerationService service2 = new ConnectIdGenerationService(2);
+        ConnectIdGenerator service1 = new ConnectIdGenerator(1);
+        ConnectIdGenerator service2 = new ConnectIdGenerator(2);
 
         long id1 = service1.generateConnectId();
         long id2 = service2.generateConnectId();
@@ -93,7 +93,7 @@ class ConnectIdGenerationServiceTest {
 
     @Test
     void generateConnectId_embedsCorrectNodeId() {
-        ConnectIdGenerationService underTest = new ConnectIdGenerationService(500);
+        ConnectIdGenerator underTest = new ConnectIdGenerator(500);
 
         long id = underTest.generateConnectId();
 

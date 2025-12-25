@@ -1,13 +1,13 @@
 package com.tpg.connect.unit.service;
 
-import com.tpg.connect.session_authentication.common.services.ConnectIdGenerationService;
-import com.tpg.connect.session_authentication.common.services.JsonWebTokenService;
-import com.tpg.connect.session_authentication.user_registration.exceptions.UserRegistrationException;
-import com.tpg.connect.session_authentication.user_registration.model.entity.RegisteredUser;
-import com.tpg.connect.session_authentication.user_registration.model.request.UserRegistrationRequest;
-import com.tpg.connect.session_authentication.user_registration.model.response.UserRegistrationResponse;
-import com.tpg.connect.session_authentication.user_registration.repository.RegisterUserRepository;
-import com.tpg.connect.session_authentication.user_registration.service.RegisterUserService;
+import com.tpg.connect.user_registration.components.ConnectIdGenerator;
+import com.tpg.connect.common.services.authentication.JsonWebTokenProviderService;
+import com.tpg.connect.user_registration.exceptions.UserRegistrationException;
+import com.tpg.connect.user_registration.model.entity.RegisteredUser;
+import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
+import com.tpg.connect.user_registration.model.entity.response.UserRegistrationResponse;
+import com.tpg.connect.user_registration.repository.RegisterUserRepository;
+import com.tpg.connect.user_registration.service.RegisterUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,22 +22,22 @@ import static org.mockito.Mockito.*;
 
 class RegisterUserServiceTest {
 
-    @Mock private ConnectIdGenerationService connectIdGenerationService;
+    @Mock private ConnectIdGenerator connectIdGenerator;
     @Mock private RegisterUserRepository registerUserRepository;
-    @Mock private JsonWebTokenService jsonWebTokenService;
+    @Mock private JsonWebTokenProviderService jsonWebTokenService;
 
     private RegisterUserService underTest;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        underTest = new RegisterUserService(connectIdGenerationService, registerUserRepository, jsonWebTokenService);
+        underTest = new RegisterUserService(connectIdGenerator, registerUserRepository, jsonWebTokenService);
     }
 
     @Test
     void registerUser_returnsResponseWithBearerToken() {
         UserRegistrationRequest request = createRequest();
-        when(connectIdGenerationService.generateConnectId()).thenReturn(123456L);
+        when(connectIdGenerator.generateConnectId()).thenReturn(123456L);
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(true);
         when(jsonWebTokenService.generateToken(anyLong(), anyString())).thenReturn("jwt-token");
 
@@ -50,7 +50,7 @@ class RegisterUserServiceTest {
     @Test
     void registerUser_generatesTokenWithCorrectParameters() {
         UserRegistrationRequest request = createRequest();
-        when(connectIdGenerationService.generateConnectId()).thenReturn(999L);
+        when(connectIdGenerator.generateConnectId()).thenReturn(999L);
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(true);
         when(jsonWebTokenService.generateToken(anyLong(), anyString())).thenReturn("token");
 
@@ -62,7 +62,7 @@ class RegisterUserServiceTest {
     @Test
     void saveUserToFirestore_returnsRegisteredUserOnSuccess() {
         UserRegistrationRequest request = createRequest();
-        when(connectIdGenerationService.generateConnectId()).thenReturn(12345L);
+        when(connectIdGenerator.generateConnectId()).thenReturn(12345L);
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(true);
 
         RegisteredUser result = underTest.saveUserToFirestore(request);
@@ -82,7 +82,7 @@ class RegisterUserServiceTest {
     @Test
     void saveUserToFirestore_throwsExceptionWhenSaveFails() {
         UserRegistrationRequest request = createRequest();
-        when(connectIdGenerationService.generateConnectId()).thenReturn(12345L);
+        when(connectIdGenerator.generateConnectId()).thenReturn(12345L);
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(false);
 
         UserRegistrationException exception = assertThrows(
@@ -96,7 +96,7 @@ class RegisterUserServiceTest {
     @Test
     void saveUserToFirestore_callsRepositoryWithCorrectUser() {
         UserRegistrationRequest request = createRequest();
-        when(connectIdGenerationService.generateConnectId()).thenReturn(777L);
+        when(connectIdGenerator.generateConnectId()).thenReturn(777L);
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(true);
 
         underTest.saveUserToFirestore(request);

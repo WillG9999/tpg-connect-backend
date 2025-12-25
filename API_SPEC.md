@@ -42,7 +42,7 @@ Content-Type: application/json
 
 → {
   "token": "jwt_token_here"
-}
+} //done
 ```
 
 ### **Email Verification Flow**
@@ -51,19 +51,21 @@ POST /api/auth/send-verification-code
 {
   "email": "user@example.com",
   "userName": "John Doe"
-}
+} // this now a paramter 
 
 POST /api/auth/verify-email-code
 {
   "email": "user@example.com",
   "code": "123456"
-}
+} // this is now a param 
 
 POST /api/auth/resend-verification-code
 {
   "email": "user@example.com",
   "userName": "John Doe"
-}
+} // cma need to rewaire to just trigger send verification code again
+
+//done 
 ```
 
 ### **Login & Session**
@@ -72,7 +74,7 @@ POST /api/auth/login
 {
   "email": "user@example.com",
   "password": "securePassword123"
-}
+} // needs to be made a query param
 
 → {
   "success": true,
@@ -83,7 +85,7 @@ POST /api/auth/login
     "email": "user@example.com",
     "name": "John Doe"
   }
-}
+} // why do we need this data? 
 
 POST /api/auth/refresh
 {
