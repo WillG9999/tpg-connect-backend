@@ -2,7 +2,7 @@ package com.tpg.connect.unit.controller;
 
 import com.tpg.connect.user_registration.controller.RegistrationController;
 import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
-import com.tpg.connect.user_registration.model.entity.response.UserRegistrationResponse;
+import com.tpg.connect.user_registration.model.dto.BearerTokenDTO;
 import com.tpg.connect.user_registration.service.RegisterUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static com.tpg.connect.common.constants.HeaderConstants.X_AUTHORISATION;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,7 +27,7 @@ class RegistrationControllerTest {
     }
 
     @Test
-    void registerUser_returnsOkWithBearerToken() {
+    void registerUser_returnsOkWithBearerTokenInHeader() {
         UserRegistrationRequest request = new UserRegistrationRequest(
                 "test@example.com",
                 "password123",
@@ -36,14 +37,14 @@ class RegistrationControllerTest {
                 "male",
                 "New York"
         );
-        UserRegistrationResponse expectedResponse = new UserRegistrationResponse("jwt-token-123");
+        BearerTokenDTO expectedResponse = new BearerTokenDTO("jwt-token-123");
         when(registerUserService.registerUser(request)).thenReturn(expectedResponse);
 
-        ResponseEntity<UserRegistrationResponse> response = underTest.registerUser(request);
+        ResponseEntity<Void> response = underTest.registerUser(request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("jwt-token-123", response.getBody().bearer());
+        assertNull(response.getBody());
+        assertEquals("Bearer jwt-token-123", response.getHeaders().getFirst(X_AUTHORISATION));
         verify(registerUserService, times(1)).registerUser(request);
     }
 
@@ -58,15 +59,15 @@ class RegistrationControllerTest {
                 "female",
                 "Los Angeles"
         );
-        UserRegistrationResponse expectedResponse = new UserRegistrationResponse("another-token");
+        BearerTokenDTO expectedResponse = new BearerTokenDTO("another-token");
         when(registerUserService.registerUser(request)).thenReturn(expectedResponse);
 
         underTest.registerUser(request);
 
         verify(registerUserService).registerUser(argThat(req ->
                 req.email().equals("jane@example.com") &&
-                req.firstName().equals("Jane") &&
-                req.lastName().equals("Smith")
+                        req.firstName().equals("Jane") &&
+                        req.lastName().equals("Smith")
         ));
     }
 

@@ -1,6 +1,6 @@
 package com.tpg.connect.unit.service;
 
-import com.tpg.connect.common.services.authentication.JsonWebTokenProviderService;
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -18,11 +18,11 @@ class JsonWebTokenProviderServiceTest {
     private static final String TEST_SECRET = "dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ydGVzdGluZ3B1cnBvc2VzMTIzNDU2";
     private static final long TEST_EXPIRATION = 3600000L;
 
-    private JsonWebTokenProviderService underTest;
+    private JsonWebTokenProvider underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new JsonWebTokenProviderService();
+        underTest = new JsonWebTokenProvider();
         ReflectionTestUtils.setField(underTest, "secretKey", TEST_SECRET);
         ReflectionTestUtils.setField(underTest, "accessTokenExpiration", TEST_EXPIRATION);
     }

@@ -8,5 +8,7 @@ public class RepositoryNamesConstants {
 
     public static final String REGISTERED_USERS = "RegisteredUsers";
     public static final String EMAILTOCONNECTIDLOOKUP = "EmailToConnectIdLookup";
+
+    public static final String KEY_PREFIX = "verification:";
 }
 

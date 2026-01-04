@@ -1,6 +1,6 @@
 package com.tpg.connect.config;
 
-import com.tpg.connect.common.services.authentication.JsonWebTokenAuthenticationFilter;
+import com.tpg.connect.common.jsonwebtoken.services.JsonWebTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

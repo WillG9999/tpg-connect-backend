@@ -1,6 +1,6 @@
 package com.tpg.connect.unit.service;
 
-import com.tpg.connect.common.services.authentication.JsonWebTokenValidatorService;
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenValidator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -19,12 +19,12 @@ class JsonWebTokenValidatorServiceTest {
     private static final String TEST_SECRET = "dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9ydGVzdGluZ3B1cnBvc2VzMTIzNDU2";
     private static final long EXPIRATION = 3600000L;
 
-    private JsonWebTokenValidatorService underTest;
+    private JsonWebTokenValidator underTest;
     private String validToken;
 
     @BeforeEach
     void setUp() {
-        underTest = new JsonWebTokenValidatorService();
+        underTest = new JsonWebTokenValidator();
         ReflectionTestUtils.setField(underTest, "secretKey", TEST_SECRET);
 
         validToken = Jwts.builder()

@@ -1,11 +1,11 @@
 package com.tpg.connect.unit.service;
 
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenProvider;
 import com.tpg.connect.user_registration.components.ConnectIdGenerator;
-import com.tpg.connect.common.services.authentication.JsonWebTokenProviderService;
 import com.tpg.connect.user_registration.exceptions.UserRegistrationException;
+import com.tpg.connect.user_registration.model.dto.BearerTokenDTO;
 import com.tpg.connect.user_registration.model.entity.RegisteredUser;
 import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
-import com.tpg.connect.user_registration.model.entity.response.UserRegistrationResponse;
 import com.tpg.connect.user_registration.repository.RegisterUserRepository;
 import com.tpg.connect.user_registration.service.RegisterUserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,16 +15,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class RegisterUserServiceTest {
 
-    @Mock private ConnectIdGenerator connectIdGenerator;
-    @Mock private RegisterUserRepository registerUserRepository;
-    @Mock private JsonWebTokenProviderService jsonWebTokenService;
+    @Mock
+    private ConnectIdGenerator connectIdGenerator;
+    @Mock
+    private RegisterUserRepository registerUserRepository;
+    @Mock
+    private JsonWebTokenProvider jsonWebTokenService;
 
     private RegisterUserService underTest;
 
@@ -41,7 +43,7 @@ class RegisterUserServiceTest {
         when(registerUserRepository.saveUser(any(RegisteredUser.class))).thenReturn(true);
         when(jsonWebTokenService.generateToken(anyLong(), anyString())).thenReturn("jwt-token");
 
-        UserRegistrationResponse response = underTest.registerUser(request);
+        BearerTokenDTO response = underTest.registerUser(request);
 
         assertNotNull(response);
         assertEquals("jwt-token", response.bearer());

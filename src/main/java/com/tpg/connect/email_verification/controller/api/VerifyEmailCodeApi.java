@@ -1,13 +1,15 @@
 package com.tpg.connect.email_verification.controller.api;
 
+import com.tpg.connect.email_verification.model.request.VerifyEmailCodeRequest;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.VERIFY_EMAIL_CODE_ENDPOINT;
 
@@ -28,9 +30,12 @@ public interface VerifyEmailCodeApi {
 
     @PostMapping(VERIFY_EMAIL_CODE_ENDPOINT)
     ResponseEntity<Void> verifyEmailCode(
-            @Parameter(description = "User email", required = true)
-            @RequestParam("email") String email,
-            @Parameter(description = "Verification code", required = true)
-            @RequestParam("verification") String verificationCode
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Verify the User is correct",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = VerifyEmailCodeRequest.class))
+            )
+            @Valid @RequestBody VerifyEmailCodeRequest request
     );
 }
+

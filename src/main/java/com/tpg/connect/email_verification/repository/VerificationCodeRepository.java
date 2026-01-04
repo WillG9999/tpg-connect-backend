@@ -7,13 +7,15 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 
+import static com.tpg.connect.common.constants.RepositoryNamesConstants.KEY_PREFIX;
+
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class VerificationCodeRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private static final String KEY_PREFIX = "verification:";
+
 
     public boolean saveCode(String email, String code, long ttlSeconds) {
         try {

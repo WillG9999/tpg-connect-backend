@@ -1,6 +1,6 @@
-package com.tpg.connect.user_registration.controller.api;
+package com.tpg.connect.login_logout.controller.api;
 
-import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
+import com.tpg.connect.login_logout.model.request.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,31 +11,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.REGISTER_USER_ENDPOINT;
+import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.LOGIN_ENDPOINT;
 
-
-public interface RegisterApi {
+public interface LoginApi {
 
     @Operation(
-            summary = "Register a new user",
-            description = "Creates a new user account and returns a JWT bearer token",
+            summary = "User login",
+            description = "Authenticates user with email and password",
             tags = {"Authentication"}
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User registered successfully",
+                    description = "Login successful",
                     content = @Content
             )
     })
 
-    @PostMapping(REGISTER_USER_ENDPOINT)
-    ResponseEntity<Void> registerUser(
+    @PostMapping(LOGIN_ENDPOINT)
+    ResponseEntity<Void> login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "User registration details",
+                    description = "User login credentials",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = UserRegistrationRequest.class))
+                    content = @Content(schema = @Schema(implementation = LoginRequest.class))
             )
-            @Valid @RequestBody UserRegistrationRequest request
+            @Valid @RequestBody LoginRequest request
     );
 }

@@ -51,13 +51,13 @@ POST /api/auth/send-verification-code
 {
   "email": "user@example.com",
   "userName": "John Doe"
-} // this now a paramter 
+} // done
 
 POST /api/auth/verify-email-code
 {
   "email": "user@example.com",
   "code": "123456"
-} // this is now a param 
+} // done
 
 POST /api/auth/resend-verification-code
 {
@@ -74,7 +74,7 @@ POST /api/auth/login
 {
   "email": "user@example.com",
   "password": "securePassword123"
-} // needs to be made a query param
+} // 
 
 → {
   "success": true,

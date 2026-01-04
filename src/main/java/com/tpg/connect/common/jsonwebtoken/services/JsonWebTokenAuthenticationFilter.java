@@ -1,5 +1,6 @@
-package com.tpg.connect.common.services.authentication;
+package com.tpg.connect.common.jsonwebtoken.services;
 
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenValidator;
 import com.tpg.connect.common.exceptions.MissingAuthorizationHeaderException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -25,7 +26,7 @@ import static com.tpg.connect.common.constants.HeaderConstants.X_AUTHORISATION;
 @Slf4j
 public class JsonWebTokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JsonWebTokenValidatorService validatorService;
+    private final JsonWebTokenValidator validatorService;
     private static final Pattern BEARER_PATTERN = Pattern.compile("^Bearer\\s+(.+)$", Pattern.CASE_INSENSITIVE);
     private static final String TEST_TOKEN = "Token123";
 

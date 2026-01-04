@@ -1,28 +1,30 @@
  package com.tpg.connect.integration.steps;
 
-import com.tpg.connect.email_verification.repository.VerificationCodeRepository;
-import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+ import com.tpg.connect.email_verification.model.request.SendVerificationCodeRequest;
+ import com.tpg.connect.email_verification.repository.VerificationCodeRepository;
+ import io.cucumber.java.en.And;
+ import io.cucumber.java.en.Given;
+ import io.cucumber.java.en.Then;
+ import io.cucumber.java.en.When;
+ import io.jsonwebtoken.Jwts;
+ import io.jsonwebtoken.io.Decoders;
+ import io.jsonwebtoken.security.Keys;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.http.HttpEntity;
+ import org.springframework.http.HttpHeaders;
+ import org.springframework.http.MediaType;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.client.HttpStatusCodeException;
+ import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
+ import javax.crypto.SecretKey;
+ import java.util.Date;
 
-import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.SEND_VERIFICATION_ENDPOINT;
-import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.VERIFY_EMAIL_CODE_ENDPOINT;
-import static org.junit.jupiter.api.Assertions.*;
+ import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.SEND_VERIFICATION_ENDPOINT;
+ import static com.tpg.connect.common.constants.ConnectApiEndpointConstants.VERIFY_EMAIL_CODE_ENDPOINT;
+ import static org.junit.jupiter.api.Assertions.assertEquals;
+ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SendVerificationApiSteps {
 
@@ -54,12 +56,14 @@ public class SendVerificationApiSteps {
 
     @When("The user requests to send a verification code to the email")
     public void theUserRequestsToSendAVerificationCodeToTheEmail() {
-        String url = BASE_URL + SEND_VERIFICATION_ENDPOINT + "?email=" + email + "&userName=" + userName;
+        String url = BASE_URL + SEND_VERIFICATION_ENDPOINT;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + authToken);
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        SendVerificationCodeRequest requestBody = new SendVerificationCodeRequest(email, userName);
+        HttpEntity<SendVerificationCodeRequest> entity = new HttpEntity<>(requestBody, headers);
 
         try {
             response = restTemplate.postForEntity(url, entity, Void.class);

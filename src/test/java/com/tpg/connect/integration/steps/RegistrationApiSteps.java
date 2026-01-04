@@ -1,7 +1,6 @@
 package com.tpg.connect.integration.steps;
 
 import com.tpg.connect.user_registration.model.entity.request.UserRegistrationRequest;
-import com.tpg.connect.user_registration.model.entity.response.UserRegistrationResponse;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import static com.tpg.connect.common.constants.HeaderConstants.X_AUTHORISATION;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistrationApiSteps {
@@ -63,7 +63,7 @@ public class RegistrationApiSteps {
             response = restTemplate.postForEntity(
                     BASE_URL + "/v1/auth/register",
                     entity,
-                    UserRegistrationResponse.class
+                    Void.class
             );
             responseStatus = response.getStatusCode().value();
         } catch (HttpStatusCodeException e) {
@@ -86,9 +86,10 @@ public class RegistrationApiSteps {
     @And("the response contains a bearer token")
     public void theResponseContainsABearerToken() {
         assertNotNull(response);
-        assertNotNull(response.getBody());
-        UserRegistrationResponse body = (UserRegistrationResponse) response.getBody();
-        assertNotNull(body.bearer());
-        assertFalse(body.bearer().isEmpty());
+        assertNull(response.getBody());
+        String authHeader = response.getHeaders().getFirst(X_AUTHORISATION);
+        assertNotNull(authHeader);
+        assertTrue(authHeader.startsWith("Bearer "));
+        assertFalse(authHeader.substring(7).isEmpty());
     }
 }

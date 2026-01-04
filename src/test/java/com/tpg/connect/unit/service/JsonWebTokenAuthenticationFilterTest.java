@@ -1,8 +1,8 @@
 package com.tpg.connect.unit.service;
 
 import com.tpg.connect.common.exceptions.MissingAuthorizationHeaderException;
-import com.tpg.connect.common.services.authentication.JsonWebTokenAuthenticationFilter;
-import com.tpg.connect.common.services.authentication.JsonWebTokenValidatorService;
+import com.tpg.connect.common.jsonwebtoken.services.JsonWebTokenAuthenticationFilter;
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenValidator;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,14 +20,14 @@ import static org.mockito.Mockito.*;
 
 class JsonWebTokenAuthenticationFilterTest {
 
-    private JsonWebTokenValidatorService validatorService;
+    private JsonWebTokenValidator validatorService;
     private TestableJsonWebTokenAuthenticationFilter underTest;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain filterChain;
 
     private static class TestableJsonWebTokenAuthenticationFilter extends JsonWebTokenAuthenticationFilter {
-        public TestableJsonWebTokenAuthenticationFilter(JsonWebTokenValidatorService validatorService) {
+        public TestableJsonWebTokenAuthenticationFilter(JsonWebTokenValidator validatorService) {
             super(validatorService);
         }
         @Override
@@ -43,7 +43,7 @@ class JsonWebTokenAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        validatorService = mock(JsonWebTokenValidatorService.class);
+        validatorService = mock(JsonWebTokenValidator.class);
         underTest = new TestableJsonWebTokenAuthenticationFilter(validatorService);
         ReflectionTestUtils.setField(underTest, "activeProfile", "test");
         request = mock(HttpServletRequest.class);
