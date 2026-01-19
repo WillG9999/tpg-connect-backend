@@ -1,5 +1,8 @@
 package com.tpg.connect.config;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,28 +26,58 @@ public class FirebaseEmulatorConfig {
     @Value("${firebase.emulator.firestore.port}")
     private String firestorePort;
 
+    @Value("${firebase.emulator.storage.port:9199}")
+    private String storagePort;
+
     @Value("${firebase.project.id}")
     private String projectId;
 
     @EventListener(ApplicationStartedEvent.class)
     public void startFirebaseEmulator() {
 
-        log.info("Configuring Firebase Emulator at {}:{}", firestoreHost, firestorePort);
+        log.info("Configuring Firebase Emulator - Firestore: {}:{}, Storage: {}:{}",
+                firestoreHost, firestorePort, firestoreHost, storagePort);
+
         System.setProperty("FIRESTORE_EMULATOR_HOST", firestoreHost + ":" + firestorePort);
+        System.setProperty("FIREBASE_STORAGE_EMULATOR_HOST", firestoreHost + ":" + storagePort);
+
         killExistingEmulators();
 
         try {
-            log.info("Starting Firebase Firestore emulator...");
-            ProcessBuilder processBuilder = new ProcessBuilder("firebase", "emulators:start", "--only", "firestore", "--project", projectId);
+            log.info("Starting Firebase emulators (Firestore + Storage)...");
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "firebase", "emulators:start", "--only", "firestore,storage", "--project", projectId);
             processBuilder.inheritIO();
 
             emulatorProcess = processBuilder.start();
 
             waitForEmulatorToStart();
-            log.info("Firebase Firestore emulator started successfully on port {}", firestorePort);
+            log.info("Firebase emulators started successfully - Firestore: {}, Storage: {}", firestorePort, storagePort);
+
+            initializeFirebaseApp();
 
         } catch (Exception e) {
             log.error("Failed to start Firebase emulator: {}", e.getMessage());
+        }
+    }
+
+    private void initializeFirebaseApp() {
+        if (FirebaseApp.getApps().isEmpty()) {
+            try {
+                String bucketName = projectId + ".appspot.com";
+
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setProjectId(projectId)
+                        .setStorageBucket(bucketName)
+                        .setCredentials(GoogleCredentials.newBuilder().build())
+                        .build();
+
+                FirebaseApp.initializeApp(options);
+                log.info("Firebase initialized for emulator - project: {}, bucket: {}", projectId, bucketName);
+            } catch (Exception e) {
+                log.error("Failed to initialize Firebase: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to initialize Firebase", e);
+            }
         }
     }
 

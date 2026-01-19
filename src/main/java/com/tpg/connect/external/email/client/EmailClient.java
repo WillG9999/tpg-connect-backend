@@ -52,4 +52,22 @@ public class EmailClient {
         );
         return sendEmail(toEmail, "Email Verification Code", "verification-email", model);
     }
+
+    public boolean sendPasswordResetEmail(String toEmail, String resetToken) {
+        String resetLink = "https://app.connect.com/reset-password?token=" + resetToken;
+        Map<String, Object> model = Map.of(
+                "resetLink", resetLink,
+                "expiryHours", 1
+        );
+        return sendEmail(toEmail, "Password Reset Request", "password-reset-email", model);
+    }
+
+    public boolean sendApplicationApprovalEmail(String toEmail, String firstName) {
+        String loginLink = "https://app.connect.com/login";
+        Map<String, Object> model = Map.of(
+                "firstName", firstName,
+                "loginLink", loginLink
+        );
+        return sendEmail(toEmail, "Welcome to Connect - Your Application Has Been Approved!", "application-approved-email", model);
+    }
 }

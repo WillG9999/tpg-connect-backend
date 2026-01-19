@@ -1,8 +1,8 @@
 package com.tpg.connect.unit.service;
 
-import com.tpg.connect.common.exceptions.MissingAuthorizationHeaderException;
 import com.tpg.connect.common.jsonwebtoken.services.JsonWebTokenAuthenticationFilter;
 import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenValidator;
+import com.tpg.connect.common.security.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,14 +21,15 @@ import static org.mockito.Mockito.*;
 class JsonWebTokenAuthenticationFilterTest {
 
     private JsonWebTokenValidator validatorService;
+    private TokenBlacklistService tokenBlacklistService;
     private TestableJsonWebTokenAuthenticationFilter underTest;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain filterChain;
 
     private static class TestableJsonWebTokenAuthenticationFilter extends JsonWebTokenAuthenticationFilter {
-        public TestableJsonWebTokenAuthenticationFilter(JsonWebTokenValidator validatorService) {
-            super(validatorService);
+        public TestableJsonWebTokenAuthenticationFilter(JsonWebTokenValidator validatorService, TokenBlacklistService tokenBlacklistService) {
+            super(validatorService, tokenBlacklistService);
         }
         @Override
         public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -36,7 +37,7 @@ class JsonWebTokenAuthenticationFilterTest {
             super.doFilterInternal(request, response, filterChain);
         }
         @Override
-        public boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        public boolean shouldNotFilter(HttpServletRequest request) {
             return super.shouldNotFilter(request);
         }
     }
@@ -44,7 +45,8 @@ class JsonWebTokenAuthenticationFilterTest {
     @BeforeEach
     void setUp() {
         validatorService = mock(JsonWebTokenValidator.class);
-        underTest = new TestableJsonWebTokenAuthenticationFilter(validatorService);
+        tokenBlacklistService = mock(TokenBlacklistService.class);
+        underTest = new TestableJsonWebTokenAuthenticationFilter(validatorService, tokenBlacklistService);
         ReflectionTestUtils.setField(underTest, "activeProfile", "test");
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
@@ -56,8 +58,11 @@ class JsonWebTokenAuthenticationFilterTest {
     void doFilterInternal_validToken_setsAuthentication() throws Exception {
         when(request.getHeader(X_AUTHORISATION)).thenReturn("Bearer validtoken");
         when(validatorService.isValidToken("validtoken")).thenReturn(true);
+        when(validatorService.isAccessToken("validtoken")).thenReturn(true);
+        when(tokenBlacklistService.isBlacklisted("validtoken")).thenReturn(false);
         Claims claims = mock(Claims.class);
         when(claims.getSubject()).thenReturn("user123");
+        when(claims.get("role", String.class)).thenReturn("USER");
         when(validatorService.getClaims("validtoken")).thenReturn(claims);
 
         underTest.doFilterInternal(request, response, filterChain);
@@ -68,11 +73,13 @@ class JsonWebTokenAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_missingHeader_throwsException() {
+    void doFilterInternal_missingHeader_doesNotSetAuthentication() throws Exception {
         when(request.getHeader(X_AUTHORISATION)).thenReturn(null);
 
-        assertThrows(MissingAuthorizationHeaderException.class, () ->
-                underTest.doFilterInternal(request, response, filterChain));
+        underTest.doFilterInternal(request, response, filterChain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
     }
 
     @Test
@@ -87,7 +94,20 @@ class JsonWebTokenAuthenticationFilterTest {
     }
 
     @Test
-    void shouldNotFilter_returnsTrueForPublicEndpoints() throws ServletException {
+    void doFilterInternal_blacklistedToken_doesNotSetAuthentication() throws Exception {
+        when(request.getHeader(X_AUTHORISATION)).thenReturn("Bearer blacklisted");
+        when(validatorService.isValidToken("blacklisted")).thenReturn(true);
+        when(validatorService.isAccessToken("blacklisted")).thenReturn(true);
+        when(tokenBlacklistService.isBlacklisted("blacklisted")).thenReturn(true);
+
+        underTest.doFilterInternal(request, response, filterChain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void shouldNotFilter_returnsTrueForPublicEndpoints() {
         when(request.getRequestURI()).thenReturn("/api/v1/auth/register");
         assertTrue(underTest.shouldNotFilter(request));
         when(request.getRequestURI()).thenReturn("/swagger-ui/index.html");
@@ -101,7 +121,7 @@ class JsonWebTokenAuthenticationFilterTest {
     }
 
     @Test
-    void shouldNotFilter_returnsFalseForProtectedEndpoints() throws ServletException {
+    void shouldNotFilter_returnsFalseForProtectedEndpoints() {
         when(request.getRequestURI()).thenReturn("/api/v1/protected");
         assertFalse(underTest.shouldNotFilter(request));
     }

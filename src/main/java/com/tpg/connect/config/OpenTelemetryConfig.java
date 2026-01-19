@@ -13,11 +13,13 @@ public class OpenTelemetryConfig {
     public void logTracingStatus() {
         boolean otelAgentActive = isOpenTelemetryAgentActive();
         if (otelAgentActive) {
-            String serviceName = System.getProperty("otel.services.name", "unknown");
+            String serviceName = System.getProperty("otel.service.name", "unknown");
             String exporter = System.getProperty("otel.traces.exporter", "unknown");
-            log.info("OpenTelemetry tracing ENABLED - services: {}, exporter: {}", serviceName, exporter);
+            String propagators = System.getProperty("otel.propagators", "unknown");
+            log.info("OpenTelemetry tracing ENABLED - service: {}, exporter: {}, propagators: {}",
+                    serviceName, exporter, propagators);
         } else {
-            log.warn("OpenTelemetry tracing DISABLED - run with: mvn spring-boot:run");
+            log.info("OpenTelemetry agent not loaded - tracing via MDC only");
         }
     }
 

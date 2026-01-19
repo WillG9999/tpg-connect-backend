@@ -1,37 +1,35 @@
 package com.tpg.connect.common.services.authentication;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.tpg.connect.common.jsonwebtoken.components.JsonWebTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
 public class JsonWebTokenProviderService {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    public static final String ROLE_USER = JsonWebTokenProvider.ROLE_USER;
+    public static final String ROLE_ADMIN = JsonWebTokenProvider.ROLE_ADMIN;
 
-    @Value("${jwt.access-token-expiration}")
-    private long accessTokenExpiration;
+    private final JsonWebTokenProvider tokenProvider;
 
     public String generateToken(long connectId, String email) {
-        return Jwts.builder()
-                .subject(String.valueOf(connectId))
-                .claim("email", email)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
-                .signWith(getSigningKey())
-                .compact();
+        return tokenProvider.generateToken(connectId, email);
     }
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public String generateToken(long connectId, String email, String role) {
+        return tokenProvider.generateToken(connectId, email, role);
+    }
+
+    public String generateRefreshToken(long connectId) {
+        return tokenProvider.generateRefreshToken(connectId);
+    }
+
+    public String generateAdminToken(long connectId, String email) {
+        return tokenProvider.generateAdminToken(connectId, email);
+    }
+
+    public long getAccessTokenExpiration() {
+        return tokenProvider.getAccessTokenExpiration();
     }
 }

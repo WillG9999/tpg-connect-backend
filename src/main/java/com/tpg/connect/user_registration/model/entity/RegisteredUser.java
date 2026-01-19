@@ -14,7 +14,7 @@ public record RegisteredUser(
         String dateOfBirth,
         String gender,
         String location,
+        String role,
         Instant createdAt
 ) {
 }
-

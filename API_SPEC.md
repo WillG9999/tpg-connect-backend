@@ -24,7 +24,7 @@
 
 ## 🔐 **AUTHENTICATION & ONBOARDING**
 
-### **User Registration**
+### **User Registration** //done 
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -45,7 +45,7 @@ Content-Type: application/json
 } //done
 ```
 
-### **Email Verification Flow**
+### **Email Verification Flow** // done 
 ```http
 POST /api/auth/send-verification-code
 {
@@ -68,7 +68,7 @@ POST /api/auth/resend-verification-code
 //done 
 ```
 
-### **Login & Session**
+### **Login & Session** // done
 ```http
 POST /api/auth/login
 {
@@ -95,7 +95,7 @@ POST /api/auth/refresh
 POST /api/auth/logout
 ```
 
-### **Password Management**
+### **Password Management** // done 
 ```http
 POST /api/auth/forgot-password
 POST /api/auth/reset-password  

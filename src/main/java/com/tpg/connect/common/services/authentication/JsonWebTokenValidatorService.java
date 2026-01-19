@@ -39,4 +39,14 @@ public class JsonWebTokenValidatorService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public long extractConnectId(String token) {
+        Claims claims = getClaims(token);
+        return Long.parseLong(claims.getSubject());
+    }
+
+    public String extractEmail(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("email", String.class);
+    }
 }
