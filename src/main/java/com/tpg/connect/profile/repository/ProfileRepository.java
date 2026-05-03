@@ -1,12 +1,15 @@
 package com.tpg.connect.profile.repository;
 
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.tpg.connect.profile.mapper.ProfileMapper;
 import com.tpg.connect.profile.model.entity.UserProfile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,6 +50,21 @@ public class ProfileRepository {
         } catch (Exception e) {
             log.error("Failed to find profile for connectId: {}", connectId, e);
             return Optional.empty();
+        }
+    }
+
+    public List<UserProfile> findAll() {
+        try {
+            var docs = firestore.collection(PROFILES_COLLECTION).get().get().getDocuments();
+            List<UserProfile> profiles = new ArrayList<>();
+            for (QueryDocumentSnapshot doc : docs) {
+                long connectId = Long.parseLong(doc.getId());
+                profiles.add(profileMapper.documentToProfile(doc.getData(), connectId));
+            }
+            return profiles;
+        } catch (Exception e) {
+            log.error("Failed to find all profiles", e);
+            return List.of();
         }
     }
 

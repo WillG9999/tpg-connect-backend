@@ -84,7 +84,7 @@ class ConversationServiceTest {
         when(messageRepository.countUnreadMessages("12345_67890", 12345L)).thenReturn(2);
         when(conversationMapper.toResponse(any(), eq(12345L), anyString(), anyString(), eq(2)))
                 .thenReturn(new ConversationResponse("12345_67890", 67890L, "Jane Doe",
-                        "http://example.com/photo.jpg", null, null, null, 2));
+                        "http://example.com/photo.jpg", null, null, null, 2, false));
 
         List<ConversationResponse> result = conversationService.getConversationsForUser(12345L);
 

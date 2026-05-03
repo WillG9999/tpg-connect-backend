@@ -10,6 +10,7 @@ public record ConversationResponse(
         String lastMessageContent,
         Long lastMessageSenderId,
         Instant lastMessageAt,
-        int unreadCount
+        int unreadCount,
+        boolean archived
 ) {
 }

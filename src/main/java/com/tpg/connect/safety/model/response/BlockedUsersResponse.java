@@ -15,6 +15,7 @@ public record BlockedUsersResponse(
             String firstName,
             String lastName,
             String photoUrl,
+            String reason,
             long blockedAt
     ) {
         public static BlockedUserInfo fromBlockedUser(BlockedUser blockedUser, String firstName, String lastName, String photoUrl) {
@@ -24,6 +25,7 @@ public record BlockedUsersResponse(
                     firstName,
                     lastName,
                     photoUrl,
+                    blockedUser.reason(),
                     blockedUser.blockedAt().toEpochMilli()
             );
         }

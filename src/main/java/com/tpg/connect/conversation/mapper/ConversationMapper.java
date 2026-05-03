@@ -27,7 +27,8 @@ public class ConversationMapper {
                 conversation.lastMessageContent(),
                 conversation.lastMessageSenderId(),
                 conversation.lastMessageAt(),
-                unreadCount
+                unreadCount,
+                conversation.archived()
         );
     }
 
@@ -40,6 +41,7 @@ public class ConversationMapper {
                 .lastMessageAt(toInstant(data.get("lastMessageAt")))
                 .lastMessageContent((String) data.get("lastMessageContent"))
                 .lastMessageSenderId(toLong(data.get("lastMessageSenderId")))
+                .archived(Boolean.TRUE.equals(data.get("archived")))
                 .build();
     }
 
@@ -50,6 +52,7 @@ public class ConversationMapper {
         data.put("lastMessageAt", conversation.lastMessageAt() != null ? conversation.lastMessageAt().toEpochMilli() : null);
         data.put("lastMessageContent", conversation.lastMessageContent());
         data.put("lastMessageSenderId", conversation.lastMessageSenderId());
+        data.put("archived", conversation.archived());
         return data;
     }
 

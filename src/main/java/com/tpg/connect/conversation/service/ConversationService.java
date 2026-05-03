@@ -166,4 +166,21 @@ public class ConversationService {
 
         return messageRepository.markMessagesAsRead(conversationId, connectId);
     }
+
+    public boolean archiveConversation(String conversationId, long connectId) {
+        log.info("Archiving conversation: {} for user: {}", conversationId, connectId);
+        return setArchivedState(conversationId, connectId, true);
+    }
+
+    public boolean unarchiveConversation(String conversationId, long connectId) {
+        log.info("Unarchiving conversation: {} for user: {}", conversationId, connectId);
+        return setArchivedState(conversationId, connectId, false);
+    }
+
+    private boolean setArchivedState(String conversationId, long connectId, boolean archived) {
+        Optional<Conversation> conversationOpt = conversationRepository.findById(conversationId);
+        if (conversationOpt.isEmpty()) return false;
+        if (!conversationOpt.get().participants().contains(connectId)) return false;
+        return conversationRepository.setArchived(conversationId, archived);
+    }
 }

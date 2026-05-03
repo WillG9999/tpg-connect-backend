@@ -92,6 +92,20 @@ public class ConversationRepository {
         }
     }
 
+    public boolean setArchived(String conversationId, boolean archived) {
+        try {
+            firestore.collection(COLLECTION_NAME)
+                    .document(conversationId)
+                    .update("archived", archived)
+                    .get();
+            log.info("Conversation archived state updated - conversationId:: {} archived:: {}", conversationId, archived);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to update archived state for conversation: {}", conversationId, e);
+            return false;
+        }
+    }
+
     public boolean delete(String conversationId) {
         try {
             firestore.collection(COLLECTION_NAME).document(conversationId).delete().get();

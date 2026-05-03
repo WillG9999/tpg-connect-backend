@@ -9,6 +9,7 @@ import com.tpg.connect.application.model.entity.Application;
 import com.tpg.connect.application.repository.ApplicationRepository;
 import com.tpg.connect.external.email.client.EmailClient;
 import com.tpg.connect.profile.factory.ProfileFactory;
+import com.tpg.connect.profile.mapper.ProfileMapper;
 import com.tpg.connect.profile.model.entity.UserProfile;
 import com.tpg.connect.profile.repository.ProfileRepository;
 import com.tpg.connect.user_registration.model.entity.RegisteredUser;
@@ -50,6 +51,9 @@ class AdminApplicationServiceTest {
     @Mock
     private ProfileFactory profileFactory;
 
+    @Mock
+    private ProfileMapper profileMapper;
+
     private AdminApplicationService adminApplicationService;
 
     private Application testApplication;
@@ -64,7 +68,8 @@ class AdminApplicationServiceTest {
                 approvedUserFactory,
                 emailClient,
                 profileRepository,
-                profileFactory
+                profileFactory,
+                profileMapper
         );
 
         testApplication = Application.builder()

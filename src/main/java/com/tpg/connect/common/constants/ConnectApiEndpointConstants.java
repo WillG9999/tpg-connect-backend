@@ -26,6 +26,10 @@ public class ConnectApiEndpointConstants {
     public static final String ADMIN_APPLICATIONS_APPROVE = "/v1/admin/applications/{applicationId}/approve";
     public static final String ADMIN_APPLICATIONS_REJECT = "/v1/admin/applications/{applicationId}/reject";
 
+    public static final String ADMIN_USERS_ALL = "/v1/admin/users";
+    public static final String ADMIN_USER_BY_ID = "/v1/admin/users/{connectId}";
+    public static final String ADMIN_DEMOGRAPHICS_STATS = "/v1/admin/demographics/stats";
+
     public static final String PROFILE_GET_ENDPOINT = "/v1/profile";
     public static final String PROFILE_UPDATE_ENDPOINT = "/v1/profile";
     public static final String PROFILE_PHOTO_ADD = "/v1/profile/photos";

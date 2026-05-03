@@ -12,7 +12,8 @@ public record Conversation(
         Instant createdAt,
         Instant lastMessageAt,
         String lastMessageContent,
-        Long lastMessageSenderId
+        Long lastMessageSenderId,
+        boolean archived
 ) {
     public static String generateConversationId(long connectId1, long connectId2) {
         long smaller = Math.min(connectId1, connectId2);

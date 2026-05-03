@@ -2,6 +2,7 @@ package com.tpg.connect.user_registration.repository;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.tpg.connect.user_registration.exceptions.UserRegistrationException;
 import com.tpg.connect.user_registration.mapper.RegisteredUserMapper;
 import com.tpg.connect.user_registration.model.entity.RegisteredUser;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,6 +26,37 @@ public class RegisterUserRepository implements RegisterUserRepositoryApi {
 
     private final Firestore firestore;
     private final RegisteredUserMapper userMapper;
+
+    @Override
+    public Optional<RegisteredUser> findByConnectId(long connectId) {
+        try {
+            DocumentSnapshot doc = firestore.collection(REGISTERED_USERS)
+                    .document(String.valueOf(connectId))
+                    .get()
+                    .get();
+            if (!doc.exists()) return Optional.empty();
+            return Optional.of(userMapper.documentToUser(doc, connectId));
+        } catch (Exception e) {
+            log.error("Failed to find user by connectId: {}", connectId, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<RegisteredUser> findAll() {
+        try {
+            var docs = firestore.collection(REGISTERED_USERS).get().get().getDocuments();
+            List<RegisteredUser> users = new ArrayList<>();
+            for (QueryDocumentSnapshot doc : docs) {
+                long connectId = Long.parseLong(doc.getId());
+                users.add(userMapper.documentToUser(doc, connectId));
+            }
+            return users;
+        } catch (Exception e) {
+            log.error("Failed to find all registered users", e);
+            return List.of();
+        }
+    }
 
     @Override
     public Optional<RegisteredUser> findByEmail(String email) {

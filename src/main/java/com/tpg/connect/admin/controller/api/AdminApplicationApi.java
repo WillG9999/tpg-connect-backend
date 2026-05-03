@@ -2,8 +2,11 @@ package com.tpg.connect.admin.controller.api;
 
 import com.tpg.connect.admin.model.request.ApproveApplicationRequest;
 import com.tpg.connect.admin.model.request.RejectApplicationRequest;
+import com.tpg.connect.admin.model.response.AdminUserDetailResponse;
+import com.tpg.connect.admin.model.response.AdminUsersListResponse;
 import com.tpg.connect.admin.model.response.ApplicationDetailResponse;
 import com.tpg.connect.admin.model.response.ApplicationsPageResponse;
+import com.tpg.connect.admin.model.response.DemographicsStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -100,5 +103,46 @@ public interface AdminApplicationApi {
             @PathVariable String applicationId,
             @Valid @RequestBody RejectApplicationRequest request
     );
+
+    @Operation(summary = "Get all users", description = "Retrieve paginated list of all registered users with optional filtering")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @GetMapping(ADMIN_USERS_ALL)
+    ResponseEntity<AdminUsersListResponse> getUsers(
+            @Parameter(description = "Page number (0-based)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "20")
+            @RequestParam(defaultValue = "20") int size,
+            @Parameter(description = "Search term (name or email)")
+            @RequestParam(required = false) String search,
+            @Parameter(description = "Filter by status")
+            @RequestParam(required = false) String status,
+            @Parameter(description = "Sort field")
+            @RequestParam(required = false) String sortBy,
+            @Parameter(description = "Sort direction (ASC or DESC)")
+            @RequestParam(required = false) String sortDirection
+    );
+
+    @Operation(summary = "Get user detail", description = "Retrieve detailed information for a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User details retrieved"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @GetMapping(ADMIN_USER_BY_ID)
+    ResponseEntity<AdminUserDetailResponse> getUserDetail(
+            @Parameter(description = "User connect ID", required = true)
+            @PathVariable long connectId
+    );
+
+    @Operation(summary = "Get demographics stats", description = "Retrieve user demographics and distribution statistics")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Demographics stats retrieved"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @GetMapping(ADMIN_DEMOGRAPHICS_STATS)
+    ResponseEntity<DemographicsStatsResponse> getDemographicsStats();
 }
 

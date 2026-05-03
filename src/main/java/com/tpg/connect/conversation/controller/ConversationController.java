@@ -96,6 +96,24 @@ public class ConversationController implements ConversationApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<Void> archiveConversation(String conversationId) {
+        long connectId = extractConnectId();
+        log.info("Archiving conversation: {} for user: {}", conversationId, connectId);
+
+        boolean success = conversationService.archiveConversation(conversationId, connectId);
+        return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> unarchiveConversation(String conversationId) {
+        long connectId = extractConnectId();
+        log.info("Unarchiving conversation: {} for user: {}", conversationId, connectId);
+
+        boolean success = conversationService.unarchiveConversation(conversationId, connectId);
+        return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
     private long extractConnectId() {
         String authHeader = httpServletRequest.getHeader(X_AUTHORISATION);
         String token = authHeader.replace("Bearer ", "");

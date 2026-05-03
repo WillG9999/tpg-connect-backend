@@ -1,13 +1,18 @@
 package com.tpg.connect.admin.service;
 
 import com.tpg.connect.admin.factory.ApprovedUserFactory;
+import com.tpg.connect.admin.model.response.AdminUserDetailResponse;
+import com.tpg.connect.admin.model.response.AdminUserSummaryResponse;
+import com.tpg.connect.admin.model.response.AdminUsersListResponse;
 import com.tpg.connect.admin.model.response.ApplicationDetailResponse;
 import com.tpg.connect.admin.model.response.ApplicationsPageResponse;
+import com.tpg.connect.admin.model.response.DemographicsStatsResponse;
 import com.tpg.connect.application.factory.ApplicationFactory;
 import com.tpg.connect.application.model.entity.Application;
 import com.tpg.connect.application.repository.ApplicationRepository;
 import com.tpg.connect.external.email.client.EmailClient;
 import com.tpg.connect.profile.factory.ProfileFactory;
+import com.tpg.connect.profile.mapper.ProfileMapper;
 import com.tpg.connect.profile.model.entity.UserProfile;
 import com.tpg.connect.profile.repository.ProfileRepository;
 import com.tpg.connect.user_registration.model.entity.RegisteredUser;
@@ -16,7 +21,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -31,6 +38,7 @@ public class AdminApplicationService {
     private final EmailClient emailClient;
     private final ProfileRepository profileRepository;
     private final ProfileFactory profileFactory;
+    private final ProfileMapper profileMapper;
 
     public ApplicationsPageResponse getAllApplications(int page, int size) {
         log.info("Fetching all applications - page: {}, size: {}", page, size);
@@ -143,6 +151,108 @@ public class AdminApplicationService {
 
     private void sendApprovalEmail(String email, String firstName) {
         emailClient.sendApplicationApprovalEmail(email, firstName);
+    }
+
+    public AdminUsersListResponse getUsers(int page, int size, String search, String status) {
+        log.info("Fetching users - page: {}, size: {}", page, size);
+
+        List<RegisteredUser> allUsers = userRepository.findAll();
+
+        if (search != null && !search.isBlank()) {
+            String lowerSearch = search.toLowerCase();
+            allUsers = allUsers.stream()
+                    .filter(u -> u.firstName().toLowerCase().contains(lowerSearch)
+                            || u.lastName().toLowerCase().contains(lowerSearch)
+                            || u.email().toLowerCase().contains(lowerSearch))
+                    .toList();
+        }
+
+        int totalElements = allUsers.size();
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, allUsers.size());
+
+        List<AdminUserSummaryResponse> pagedUsers = fromIndex < allUsers.size()
+                ? allUsers.subList(fromIndex, toIndex).stream()
+                        .map(this::toUserSummary)
+                        .toList()
+                : List.of();
+
+        return new AdminUsersListResponse(pagedUsers, totalElements);
+    }
+
+    private AdminUserSummaryResponse toUserSummary(RegisteredUser user) {
+        Optional<UserProfile> profileOpt = profileRepository.findByConnectId(user.connectId());
+        String location = profileOpt.map(UserProfile::location).orElse(null);
+        String profilePhotoUrl = profileOpt
+                .map(UserProfile::photoUrls)
+                .filter(urls -> urls != null && !urls.isEmpty())
+                .map(urls -> urls.get(0))
+                .orElse(null);
+
+        return new AdminUserSummaryResponse(
+                String.valueOf(user.connectId()),
+                user.firstName() + " " + user.lastName(),
+                user.email(),
+                location,
+                profilePhotoUrl,
+                "Active",
+                false,
+                null,
+                null
+        );
+    }
+
+    public Optional<AdminUserDetailResponse> getUserDetail(long connectId) {
+        log.info("Fetching user detail for connectId: {}", connectId);
+
+        Optional<RegisteredUser> userOpt = userRepository.findByConnectId(connectId);
+        if (userOpt.isEmpty()) return Optional.empty();
+
+        RegisteredUser user = userOpt.get();
+        Optional<UserProfile> profileOpt = profileRepository.findByConnectId(connectId);
+
+        Map<String, Object> profileData = profileOpt
+                .map(profileMapper::profileToDocument)
+                .orElse(Map.of());
+
+        Map<String, Object> activityStats = new HashMap<>();
+        activityStats.put("totalConversations", 0);
+        activityStats.put("totalMatches", 0);
+
+        return Optional.of(new AdminUserDetailResponse(
+                profileData,
+                user.email(),
+                "approved",
+                true,
+                true,
+                activityStats
+        ));
+    }
+
+    public DemographicsStatsResponse getDemographicsStats() {
+        log.info("Fetching demographics stats");
+
+        List<RegisteredUser> users = userRepository.findAll();
+        long totalUsers = users.size();
+
+        Map<String, Long> genderDistribution = new HashMap<>();
+        for (RegisteredUser user : users) {
+            if (user.gender() != null) {
+                genderDistribution.merge(user.gender(), 1L, Long::sum);
+            }
+        }
+
+        Map<String, Long> interestDistribution = new HashMap<>();
+        List<UserProfile> profiles = profileRepository.findAll();
+        for (UserProfile profile : profiles) {
+            if (profile.interests() != null) {
+                for (String interest : profile.interests()) {
+                    interestDistribution.merge(interest, 1L, Long::sum);
+                }
+            }
+        }
+
+        return new DemographicsStatsResponse(totalUsers, genderDistribution, interestDistribution);
     }
 
     private ApplicationDetailResponse toDetailResponse(Application app) {

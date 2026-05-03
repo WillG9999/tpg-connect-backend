@@ -64,4 +64,20 @@ public interface ConversationApi {
     })
     @PostMapping("/with/{otherUserId}")
     ResponseEntity<ConversationResponse> getOrCreateConversation(@PathVariable Long otherUserId);
+
+    @Operation(summary = "Archive a conversation", description = "Archives a conversation for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversation archived"),
+            @ApiResponse(responseCode = "404", description = "Conversation not found or user not a participant")
+    })
+    @PostMapping("/{conversationId}/archive")
+    ResponseEntity<Void> archiveConversation(@PathVariable String conversationId);
+
+    @Operation(summary = "Unarchive a conversation", description = "Restores an archived conversation for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversation unarchived"),
+            @ApiResponse(responseCode = "404", description = "Conversation not found or user not a participant")
+    })
+    @PostMapping("/{conversationId}/unarchive")
+    ResponseEntity<Void> unarchiveConversation(@PathVariable String conversationId);
 }
